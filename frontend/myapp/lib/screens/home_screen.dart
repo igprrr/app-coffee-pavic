@@ -1,8 +1,16 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   final ImagePicker _picker = ImagePicker();
+  List<XFile> _recentPhotos = [];
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +49,18 @@ class HomeScreen extends StatelessWidget {
                           ),
                           Container(
                             height: 200,
-                            child: Center(child: Text('Placeholder for photos')),
+                            child: _recentPhotos.isEmpty
+                                ? Center(child: Text('No photos yet'))
+                                : ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: _recentPhotos.length,
+                                    itemBuilder: (context, index) {
+                                      return Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Image.file(File(_recentPhotos[index].path)),
+                                      );
+                                    },
+                                  ),
                           ),
                         ],
                       ),
@@ -74,9 +93,10 @@ class HomeScreen extends StatelessWidget {
                   onPressed: () async {
                     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
                     if (image != null) {
-                      // Faça algo com a imagem, como salvar ou exibir
+                      setState(() {
+                        _recentPhotos.add(image);
+                      });
                     }
-                    // Ação para a galeria
                   },
                 ),
               ),
@@ -86,7 +106,9 @@ class HomeScreen extends StatelessWidget {
                   onPressed: () async {
                     final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
                     if (photo != null) {
-                      // Faça algo com a foto, como salvar ou exibir
+                      setState(() {
+                        _recentPhotos.add(photo);
+                      });
                     }
                   },
                 ),
